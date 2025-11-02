@@ -2,6 +2,9 @@
 .dropbox-token
 .cvat.env
 
+# Windows package distribution (contains demo credentials)
+cvat/windows-package-dist/
+
 # Python
 __pycache__/
 *.py[cod]
