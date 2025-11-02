@@ -1,5 +1,6 @@
 .PHONY: help google-auth setup venv install test clean status transfer transfer-resume convert-cogs convert-cogs-sequential split-dataset merge-annotations test-chips extract-chips
 .PHONY: cvat-install cvat-start cvat-stop cvat-restart cvat-logs cvat-status cvat-create-user cvat-setup-project cvat-complete-setup cvat-backup cvat-clean
+.PHONY: cvat-vm-deploy cvat-vm-start cvat-vm-stop cvat-vm-status cvat-vm-backup cvat-vm-ssh cvat-vm-destroy
 
 # Default target - show help
 help:
@@ -33,7 +34,7 @@ help:
 	@echo "  make split-dataset     Split chips for parallel annotation (2+ people)"
 	@echo "  make merge-annotations Merge COCO annotations from multiple annotators"
 	@echo ""
-	@echo "🎨 Annotation (CVAT):"
+	@echo "🎨 Annotation (CVAT - Local):"
 	@echo "  make cvat-complete-setup    🚀 Complete setup: install + user + project + images"
 	@echo "  make cvat-install           Install CVAT (Docker Compose)"
 	@echo "  make cvat-create-user       Create admin user (bypasses web UI)"
@@ -45,6 +46,15 @@ help:
 	@echo "  make cvat-status            Check CVAT status"
 	@echo "  make cvat-backup            Backup annotations and data"
 	@echo "  make cvat-clean             Remove CVAT (keeps volumes/data)"
+	@echo ""
+	@echo "☁️  Annotation (CVAT - Cloud VM):"
+	@echo "  make cvat-vm-deploy         🚀 Deploy CVAT to GCP VM (one-time setup)"
+	@echo "  make cvat-vm-start          Start CVAT VM (~2 min boot)"
+	@echo "  make cvat-vm-stop           Stop VM (saves money, preserves data)"
+	@echo "  make cvat-vm-status         Check VM and CVAT status"
+	@echo "  make cvat-vm-backup         Backup annotations to GCS"
+	@echo "  make cvat-vm-ssh            SSH into CVAT VM"
+	@echo "  make cvat-vm-destroy        ⚠️  Destroy VM and all data"
 	@echo ""
 	@echo "🧪 Development:"
 	@echo "  make venv              Create Python virtual environment"
@@ -485,4 +495,66 @@ cvat-clean:
 	@echo ""
 	@echo "To reinstall:"
 	@echo "  make cvat-install"
+
+#==============================================================================
+# CVAT Cloud VM (GCP)
+#==============================================================================
+
+# Deploy CVAT to GCP VM
+cvat-vm-deploy:
+	@echo "☁️  Deploying CVAT to GCP VM"
+	@echo "============================"
+	@echo ""
+	@echo "This will create:"
+	@echo "  • n2-standard-2 VM (2 vCPU, 8 GB RAM) ~$$0.10/hour"
+	@echo "  • 100 GB persistent SSD disk"
+	@echo "  • Static public IP address"
+	@echo "  • Firewall rules (ports 22, 80, 443, 8080)"
+	@echo ""
+	@echo "Estimated costs:"
+	@echo "  • Running 40 hrs/month: ~$$13-21/month"
+	@echo "  • Stopped (disk only): ~$$5-10/month"
+	@echo ""
+	@read -p "Press Enter to deploy or Ctrl+C to cancel..."; \
+	cd cvat-vm/terraform && terraform init && terraform apply
+
+# Start CVAT VM
+cvat-vm-start:
+	@./cvat-vm/scripts/vm-start.sh
+
+# Stop CVAT VM (saves money)
+cvat-vm-stop:
+	@./cvat-vm/scripts/vm-stop.sh
+
+# Check VM status
+cvat-vm-status:
+	@./cvat-vm/scripts/vm-status.sh
+
+# Backup to GCS
+cvat-vm-backup:
+	@./cvat-vm/scripts/vm-backup.sh
+
+# SSH into VM
+cvat-vm-ssh:
+	@./cvat-vm/scripts/vm-ssh.sh
+
+# Destroy VM (WARNING: deletes all data)
+cvat-vm-destroy:
+	@echo "⚠️  WARNING: This will DESTROY the CVAT VM and ALL DATA"
+	@echo ""
+	@echo "This action will:"
+	@echo "  • Delete the VM instance"
+	@echo "  • Delete the persistent disk (if not protected)"
+	@echo "  • Keep the static IP (you can delete it separately)"
+	@echo ""
+	@echo "Make sure you have backed up all annotations first!"
+	@echo "  Run: make cvat-vm-backup"
+	@echo ""
+	@read -p "Type 'destroy' to confirm: " confirm; \
+	if [ "$$confirm" = "destroy" ]; then \
+		cd cvat-vm/terraform && terraform destroy; \
+	else \
+		echo "Cancelled"; \
+		exit 1; \
+	fi
 

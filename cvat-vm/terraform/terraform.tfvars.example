@@ -1,0 +1,17 @@
+# Copy this file to terraform.tfvars and customize as needed
+
+project_id   = "asdm-399400"
+region       = "us-west1"
+zone         = "us-west1-b"
+machine_type = "n2-standard-2" # ~$0.10/hour, good for 4 annotators
+
+# Restrict to your IP for better security
+# allowed_ips = ["YOUR_IP_ADDRESS/32"]
+allowed_ips = ["0.0.0.0/0"]
+
+# Disk size for annotations and images
+data_disk_size_gb = 100
+
+# GCS bucket for backups
+gcs_bucket = "gs://tumamoc-2023"
+

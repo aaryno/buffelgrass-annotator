@@ -65,29 +65,50 @@ def export_project(
     
     export_file = output_path / f"{project_name.lower().replace(' ', '-')}-export.zip"
     
-    print(f"\n📦 Exporting project...")
-    print(f"   Output: {export_file}")
+    # Get all tasks in the project
+    tasks = [task for task in client.tasks.list() if task.project_id == project.id]
+    print(f"   Found {len(tasks)} task(s) in project")
+    
+    if not tasks:
+        print("❌ No tasks found in project")
+        return False
+    
+    print(f"\n📦 Exporting annotations...")
+    print(f"   Output directory: {output_path}")
     
     try:
-        # Export project (includes tasks, annotations, etc.)
-        client.projects.retrieve(project.id).export_dataset(
-            format_name="CVAT 1.1",
-            filename=str(export_file)
-        )
+        # Export each task's annotations in COCO format
+        for i, task in enumerate(tasks, 1):
+            task_name = task.name.lower().replace(" ", "-")
+            task_export_file = output_path / f"{task_name}-coco.zip"
+            
+            print(f"   [{i}/{len(tasks)}] Exporting task: {task.name}")
+            
+            # Download COCO annotations for the task
+            task_obj = client.tasks.retrieve(task.id)
+            task_obj.export_dataset("COCO 1.0", str(task_export_file), include_images=True)
+            
+            print(f"        ✓ Saved to: {task_export_file.name}")
         
-        print(f"✅ Project exported successfully!")
-        print(f"\n📤 Share this file with collaborators:")
-        print(f"   {export_file}")
+        print(f"\n✅ All annotations exported successfully!")
+        print(f"\n📤 Share these files with collaborators:")
+        for task in tasks:
+            task_name = task.name.lower().replace(" ", "-")
+            print(f"   - {task_name}-coco.zip")
+        
         print(f"\n📝 Import Instructions:")
         print(f"   1. Open CVAT on their machine")
-        print(f"   2. Go to Projects → Import")
-        print(f"   3. Upload: {export_file.name}")
-        print(f"   4. Start annotating!")
+        print(f"   2. Create tasks with the same names")
+        print(f"   3. For each task: Actions → Upload annotations")
+        print(f"   4. Select COCO 1.0 format and upload the corresponding .zip")
+        print(f"   5. Start annotating!")
         
         return True
         
     except Exception as e:
         print(f"❌ Export failed: {e}")
+        import traceback
+        traceback.print_exc()
         return False
 
 
