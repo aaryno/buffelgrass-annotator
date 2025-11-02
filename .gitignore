@@ -1,0 +1,55 @@
+# Credentials (contains sensitive information)
+.dropbox-token
+.cvat.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Data files (too large for git)
+data/raw_jpegs/
+data/source_cogs/
+data/training_chips/
+data/geti_training/
+*.tif
+*.tiff
+*.jp2
+*.jpg
+*.jpeg
+*.png
+
+# Geti exports
+geti_exports/
+*.zip
+
+# Conversion progress
+conversion_progress.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+/tmp/
+
