@@ -19,16 +19,18 @@ build/
 *.ipynb_checkpoints
 
 # Data files (too large for git)
-data/raw_jpegs/
-data/source_cogs/
-data/training_chips/
-data/geti_training/
+data/
 *.tif
 *.tiff
 *.jp2
 *.jpg
 *.jpeg
 *.png
+
+# GETI platform (large codebases, not part of this repo)
+geti/
+geti-sdk/
+geti-vm/
 
 # Geti exports
 geti_exports/
