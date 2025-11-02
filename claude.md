@@ -44,8 +44,10 @@ See [`project-plan.md`](project-plan.md) for high-level project plan or [`projec
 ```bash
 make help                       # Show all available commands
 make extract-chips-parallel     # Extract 4 chips per COG → 10 folders (Cloud Run)
-make cvat-complete-setup        # Install CVAT + create project + upload images
-make cvat-status                # Check CVAT status
+make cvat-complete-setup        # Install CVAT locally + create project + upload images
+make cvat-vm-deploy             # Deploy CVAT to cloud VM (one-time setup)
+make cvat-vm-start              # Start cloud VM (~2 min boot)
+make cvat-vm-stop               # Stop cloud VM (saves money, preserves data)
 ```
 
 ## Project Structure
@@ -74,6 +76,11 @@ make cvat-status                # Check CVAT status
 - `geti-vm/` - Cloud VM deployment for GETI instance
 - `cvat/` - Lightweight annotation tool setup for segmentation tasks
   - `windows-package/` - Production-ready Windows deployment for 4-person collaborative annotation
+  - `export-project.py` - Export COCO annotations from CVAT projects
+- `cvat-vm/` - Cloud VM deployment for CVAT (cost-effective, start/stop as needed)
+  - `terraform/` - Infrastructure as Code for GCP VM deployment
+  - `scripts/` - VM management scripts (start, stop, status, backup, ssh)
+  - `DEPLOYMENT-GUIDE.md` - Step-by-step deployment instructions
 
 ## GCP Resources
 
